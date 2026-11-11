@@ -508,25 +508,28 @@
         const stationBounds = stop.getBoundingClientRect();
         const benchHeight = workbench.getBoundingClientRect().height;
         const run = Math.max(0, stationBounds.height - benchHeight);
-        let stopTop = stationBounds.top;
+        const stationTop = scrollY + stationBounds.top;
+        const page = document.scrollingElement;
+        // At low zoom the document can end before the bench reaches its sticky limit.
+        const arrivalEnd = Math.min(Math.ceil(stationTop - stickyTop + run), page.scrollHeight - page.clientHeight);
 
         if (mode !== "packed") {
           // Hold at the end of the sticky run. On short screens, let the user
           // reach the controls below the belt once the item is in position.
           const overflow = arrived === 1 ? Math.max(0, benchHeight - (innerHeight - stickyTop)) : 0;
-          const limit = Math.ceil(scrollY + stopTop - stickyTop + run + overflow);
+          const limit = arrivalEnd + Math.ceil(overflow);
           if (scrollY > limit) {
             window.scrollTo({ top: limit, behavior: "instant" });
-            stopTop = stop.getBoundingClientRect().top;
           }
         }
 
         const bounds = machine.getBoundingClientRect();
-        const startTop = arrivalStart(bounds.height, stickyTop);
+        const start = stationTop - arrivalStart(bounds.height, stickyTop);
         const inView = bounds.bottom > stickyTop && bounds.top < innerHeight;
         if (packedAt === null) {
           // Arrival and the end of the sticky run share the same scroll position.
-          arrived = reduceMotion ? 1 : easeInOut(seg(startTop - stopTop, 0, startTop - stickyTop + run));
+          arrived = reduceMotion || scrollY >= arrivalEnd - 1 ? 1
+            : easeInOut(seg(scrollY, start, arrivalEnd));
         }
         const elapsedPacking = packedAt === null ? 0 : now - packedAt;
         const packed = packedAt === null ? 0 : reduceMotion ? 1 : seg(elapsedPacking, 0, 400);
