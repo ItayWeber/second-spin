@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="he" dir="rtl" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>סיבוב נוסף | ממיינים תרומות לפני המסירה</title>
+  <meta name="description" content="יחידת למידה קצרה (כ-10 דקות) למתנדבים חדשים בעמדת הקבלה של עמותת סיבוב נוסף: איך בודקים בגדים ומשחקי קופסה ומחליטים אם הם מתאימים למסירה, דורשים ניקוי או תיקון, או אינם מתאימים לקבלה.">
+  <meta name="keywords" content="סיבוב נוסף, מיון תרומות, מתנדבים, שימוש חוזר, בגדים, משחקי קופסה, יחידת למידה">
+  <meta name="author" content="צוות הפרויקט - קורס תכנות 3">
+  <meta name="theme-color" content="#2A7F7B">
+  <meta property="og:title" content="ממיינים תרומות לפני המסירה | סיבוב נוסף">
+  <meta property="og:description" content="יחידת למידה של 10 דקות לפני המשמרת הראשונה בעמדת הקבלה.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="he_IL">
+
+  <!-- Bootstrap 5.3 RTL build -->
+  <link rel="stylesheet" href="assets/css/bootstrap.rtl.min.css">
+  <!-- Project styles load after Bootstrap so the design tokens win -->
+  <link rel="stylesheet" href="assets/css/style.css?v=4">
+</head>
+<body>
+<a class="skip-link" href="#main">דילוג לתוכן</a>
+
+<!-- ===== SVG sprite: painted, outline-free items shared across the page ===== -->
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <symbol id="i-shirt" viewBox="0 0 100 100">
+    <path class="s-shirt" d="M30 18 L42 12 Q50 22 58 12 L70 18 L90 34 L80 47 L71 40 L71 88 L29 88 L29 40 L20 47 L10 34Z"/>
+    <path class="s-shirt-d" d="M58 12 L70 18 L90 34 L80 47 L71 40 L71 88 L55 88 Q60 50 58 12Z"/>
+    <path class="s-shirt-d" d="M42 12 Q50 22 58 12 Q50 30 42 12Z"/>
+    <path class="s-hl" d="M33 28 L38 22 L38 80 L33 80Z"/>
+    <rect class="s-shirt-d" x="35" y="46" width="14" height="14" rx="2"/>
+  </symbol>
+  <symbol id="i-coat-body" viewBox="0 0 100 100">
+    <path class="s-coat" d="M32 12 L44 8 L50 20 L56 8 L68 12 L84 30 L82 72 L73 70 L72 94 L28 94 L27 70 L18 72 L16 30Z"/>
+    <path class="s-coat-d" d="M56 8 L68 12 L84 30 L82 72 L73 70 L72 94 L54 94 Q58 50 56 8Z"/>
+    <path class="s-coat-l" d="M44 8 L50 20 L47 36 L37 22Z"/>
+    <path class="s-coat-d" d="M56 8 L50 20 L53 36 L63 22Z"/>
+    <rect class="s-coat-d" x="31" y="78" width="12" height="8" rx="1.5"/>
+    <rect class="s-coat-d" x="58" y="78" width="12" height="8" rx="1.5"/>
+    <path class="s-hl" d="M20 34 L25 30 L25 68 L20 68Z"/>
+  </symbol>
+  <symbol id="i-button" viewBox="0 0 10 10">
+    <circle class="s-gold" cx="5" cy="5" r="4.4"/>
+    <circle class="s-gold-l" cx="4" cy="4" r="1.6"/>
+  </symbol>
+  <symbol id="i-coat" viewBox="0 0 100 100">
+    <use href="#i-coat-body" width="100" height="100"/>
+    <use href="#i-button" x="49.8" y="34.8" width="6.4" height="6.4"/>
+    <use href="#i-button" x="49.8" y="46.8" width="6.4" height="6.4"/>
+    <circle class="s-ghost" cx="53" cy="62" r="3.4"/>
+    <use href="#i-button" x="49.8" y="70.8" width="6.4" height="6.4"/>
+  </symbol>
+  <symbol id="i-game-torn" viewBox="0 0 100 100">
+    <rect class="s-game-base" x="12" y="40" width="76" height="46" rx="3"/>
+    <path class="s-game" d="M10 30 H90 V48 H72 L66 56 L61 47 L55 55 L50 48 H10Z"/>
+    <path class="s-game-d" d="M50 30 H90 V48 H72 L66 56 L61 47 L55 55 L50 48Z"/>
+    <rect class="s-paper" x="18" y="36" width="26" height="4" rx="2"/>
+    <circle class="s-dot1" cx="28" cy="68" r="6"/>
+    <rect class="s-dot2" x="44" y="62" width="12" height="12" rx="2"/>
+    <circle class="s-dot3" cx="70" cy="70" r="6"/>
+  </symbol>
+  <symbol id="i-game-missing" viewBox="0 0 100 100">
+    <rect class="s-game-base" x="10" y="28" width="80" height="58" rx="3"/>
+    <rect class="s-game" x="18" y="36" width="14" height="18" rx="2"/>
+    <rect class="s-game" x="36" y="36" width="14" height="18" rx="2"/>
+    <rect class="s-ghost" x="54" y="36" width="14" height="18" rx="2"/>
+    <rect class="s-game" x="72" y="36" width="12" height="18" rx="2"/>
+    <rect class="s-ghost" x="18" y="60" width="14" height="18" rx="2"/>
+    <rect class="s-game" x="36" y="60" width="14" height="18" rx="2"/>
+    <rect class="s-ghost" x="54" y="60" width="14" height="18" rx="2"/>
+    <rect class="s-game" x="72" y="60" width="12" height="18" rx="2"/>
+  </symbol>
+  <symbol id="travel-shirt" viewBox="0 0 144 144">
+    <path d="M18 57 41 44H105L127 58 124 91 105 103H39L17 91Z" fill="#265e67"/>
+    <path d="M18 57 41 44H105L127 58 113 79H31Z" fill="#5797a6"/>
+    <path d="M38 58 54 49H93L110 59 97 70H47Z" fill="#75b0b8"/>
+    <path d="M62 45Q73 63 86 45Z" fill="#285963"/>
+    <path d="M23 83H120M27 91H115" fill="none" stroke="#a6cfcb" stroke-width="2" stroke-dasharray="3 4"/>
+    <path d="M81 62H98V74L89 78 81 74Z" fill="#3a7684"/>
+  </symbol>
+  <symbol id="travel-coat" viewBox="0 0 144 144">
+    <path d="M17 56 43 40H103L128 58V90L108 104H39L17 91Z" fill="#4c4e78"/>
+    <path d="M17 56 43 40H103L128 58 110 82H37Z" fill="#777aa8"/>
+    <path d="M43 40 66 42 74 61 52 53ZM103 40 80 42 74 61 95 53Z" fill="#b3afd1"/>
+    <path d="M74 61V97" stroke="#43476f" stroke-width="3"/>
+    <path d="M31 74 52 77M96 77 116 73M31 92H61M85 92H116" stroke="#a8a8c7" stroke-width="2" fill="none" stroke-dasharray="3 3"/>
+    <circle cx="74" cy="67" r="3" fill="#e0b76b"/><circle cx="74" cy="78" r="3" fill="#e0b76b"/>
+    <circle cx="74" cy="90" r="3" fill="none" stroke="#c1b69c" stroke-width="1.5" stroke-dasharray="2 2"/>
+  </symbol>
+  <symbol id="travel-checkers" viewBox="0 0 144 144">
+    <path d="M17 56 43 36H108L128 56V93L108 109H36L17 92Z" fill="#9e6646"/>
+    <path d="M17 56 43 36H108L128 56 105 78H38Z" fill="#d5a574"/>
+    <path d="M22 56 45 39H103L118 55 100 72H40Z" fill="#f4dfb7"/>
+    <path d="M44 46H98L106 55 96 64H47L34 56Z" fill="#655b82"/>
+    <path d="M43 53H102M45 59H100M53 47V64M66 47V64M80 47V64M94 47V64" stroke="#e3cfad" stroke-width="1.5"/>
+    <path d="M110 71 118 79 112 82 119 88 107 98 108 83 102 81Z" fill="#674a36"/>
+    <path d="M37 85H91M40 93H83" stroke="#eac397" stroke-width="2" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="travel-memory" viewBox="0 0 144 144">
+    <path d="M18 58 44 37H105L128 58V92L105 109H40L18 91Z" fill="#496a53"/>
+    <path d="M18 58 44 37H105L128 58 104 81H38Z" fill="#91aa76"/>
+    <path d="M44 45H97L111 58 96 72H47L33 59Z" fill="#f1e1b9"/>
+    <path d="M58 51 69 49 74 62 63 65Z" fill="#728f6a"/>
+    <path d="M77 50 88 48 94 61 82 64Z" fill="#a86f64"/>
+    <path d="M43 87H92M47 95H80" stroke="#a7bd8b" stroke-width="2" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-crate" viewBox="0 0 100 100">
+    <path class="s-kraft" d="M12 36 H88 L82 90 H18Z"/>
+    <path class="s-kraft-d" d="M50 36 H88 L82 90 H50Z"/>
+    <path class="s-kraft-l" d="M15 56 H85 L84.4 62 H15.6Z M16.5 76 H83.5 L83 82 H17Z"/>
+    <rect class="s-kraft-d" x="38" y="42" width="24" height="8" rx="4"/>
+  </symbol>
+  <symbol id="i-logo" viewBox="0 0 48 48">
+    <path class="logo-loop" d="M40 22 A16 16 0 1 0 34 36"/>
+    <path class="logo-loop" d="M33 29 L35 37 L42 33"/>
+    <rect class="s-kraft" x="17" y="18" width="14" height="12" rx="1.5"/>
+    <path class="logo-tape" d="M24 18 V23"/>
+  </symbol>
+</svg>
+
+<!-- ===== Header: logo, main navigation ===== -->
+<nav class="navbar navbar-expand-lg fixed-top site-nav" aria-label="ניווט ראשי">
+  <div class="container">
+    <a class="navbar-brand brand" href="#top">
+      <svg class="brand-mark" aria-hidden="true"><use href="#i-logo"/></svg>
+      <span>סיבוב נוסף</span>
+    </a>
+    <button class="navbar-toggler nav-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="פתיחת תפריט">
+      <span class="nav-toggle-bar"></span><span class="nav-toggle-bar"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav nav-links">
+        <li class="nav-item"><a class="nav-link" href="#inspect">איך מסתכלים</a></li>
+        <li class="nav-item"><a class="nav-link" href="#rules">כללי הקבלה</a></li>
+        <li class="nav-item"><a class="nav-link nav-cta" href="#station">תחנת תרגול</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<header class="journey" id="top">
+  <!-- The tall wrapper provides the scroll distance; the stage stays pinned while it is scrolled -->
+  <div class="pin" id="journeyPin">
+    <div class="stage" id="journeyStage">
+
+      <svg class="world" id="world" viewBox="0 0 1420 800" preserveAspectRatio="xMidYMax meet" role="img" aria-labelledby="worldTitle worldDesc">
+        <title id="worldTitle">מסע של תרומה</title>
+        <desc id="worldDesc">אמא ובן נושאים קופסת תרומות מהבית, הולכים ברחוב עם עננים וגבעות שנעים לאט, ומוסרים אותה למשאית של המרכז. המשאית נוסעת עם הקופסה אל דלת מרכז סיבוב נוסף.</desc>
+        <defs>
+          <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" class="stop-top"/><stop offset="1" class="stop-bottom"/>
+          </linearGradient>
+          <radialGradient id="sunGlow"><stop offset="0" class="stop-glow-a"/><stop offset="1" class="stop-glow-b"/></radialGradient>
+        </defs>
+
+        <rect class="sky" x="-1200" y="-1400" width="4000" height="2800" fill="url(#skyGrad)"/>
+        <g id="sun"><circle class="sun-glow" r="230" fill="url(#sunGlow)"/><circle class="sun" r="62"/></g>
+        <g id="layerClouds"></g>
+        <g id="layerFar"></g>
+        <g id="layerHills"></g>
+        <g id="layerMid"></g>
+
+        <g id="layerNear">
+          <!-- ground: lawn, pavement, road -->
+          <rect class="f-lawn" x="-600" y="610" width="8000" height="80"/>
+          <rect class="f-walk" x="-600" y="676" width="8000" height="32"/>
+          <rect class="f-curb" x="-600" y="706" width="8000" height="5"/>
+          <rect class="f-road" x="-600" y="711" width="8000" height="120"/>
+          <g id="roadMarks"></g>
+          <g id="layerStreet"></g>
+
+          <!-- start: the family home, base y=676 -->
+          <g id="home">
+            <rect class="f-wall" x="5560" y="400" width="860" height="276"/>
+            <rect class="f-wall-d" x="6250" y="400" width="170" height="276"/>
+            <path class="f-roof" d="M5520 408 L5800 326 L6140 326 L6460 408Z"/>
+            <path class="f-roof-d" d="M6140 326 L6460 408 L6300 408 L6050 326Z"/>
+            <rect class="f-wall-d" x="6200" y="282" width="40" height="70"/>
+            <rect class="f-door" x="5760" y="436" width="96" height="240" rx="6"/>
+            <circle class="f-gold" cx="5838" cy="560" r="5"/>
+            <rect class="f-glass" x="5600" y="450" width="100" height="90" rx="4"/>
+            <path class="f-curtain" d="M5600 450 h28 q-6 40 0 90 h-28z M5672 450 h28 v90 h-28 q6 -50 0 -90z"/>
+            <rect class="f-glass" x="5950" y="450" width="100" height="90" rx="4"/>
+            <path class="f-curtain" d="M5950 450 h28 q-6 40 0 90 h-28z M6022 450 h28 v90 h-28 q6 -50 0 -90z"/>
+            <rect class="f-glass" x="6130" y="450" width="90" height="90" rx="4"/>
+            <rect class="f-mat" x="5750" y="672" width="116" height="10" rx="3"/>
+            <!-- flower pot -->
+            <path class="f-pot" d="M5906 676 L5912 640 H5944 L5950 676Z"/>
+            <path class="f-leaf-a" d="M5928 640 Q5900 604 5896 584 Q5922 596 5928 640Z"/>
+            <path class="f-leaf-b" d="M5928 640 Q5950 600 5970 590 Q5950 612 5928 640Z"/>
+            <circle class="f-flower" cx="5897" cy="582" r="7"/><circle class="f-flower" cx="5970" cy="588" r="7"/>
+          </g>
+          <!-- bench where the box waits -->
+          <g id="bench">
+            <rect class="f-wood-d" x="5942" y="660" width="10" height="40"/>
+            <rect class="f-wood-d" x="6048" y="660" width="10" height="40"/>
+            <rect class="f-wood" x="5930" y="646" width="140" height="16" rx="3"/>
+          </g>
+
+          <!-- goal: the Sivuv Nosaf centre, base y=676 -->
+          <g id="centre">
+            <rect class="f-wall2" x="400" y="378" width="400" height="298"/>
+            <rect class="f-wall2-d" x="700" y="378" width="100" height="298"/>
+            <path class="f-awning-a" d="M388 378 H812 L826 430 H374Z"/>
+            <path class="f-awning-b" d="M388 378 H430 L424 430 H374Z M472 378 H514 L510 430 H466Z M556 378 H598 L596 430 H552Z M640 378 H682 L682 430 H638Z M724 378 H766 L768 430 H724Z"/>
+            <rect class="f-sign" x="470" y="318" width="260" height="52" rx="8"/>
+            <text class="sign-text" x="600" y="355">סיבוב נוסף</text>
+            <rect class="f-sign-post" x="494" y="370" width="6" height="8"/><rect class="f-sign-post" x="700" y="370" width="6" height="8"/>
+            <rect class="f-glass" x="424" y="456" width="100" height="100" rx="4"/>
+            <use href="#i-shirt" x="436" y="470" width="30" height="30"/>
+            <use href="#i-coat-body" x="470" y="468" width="34" height="34"/>
+            <rect class="f-wood" x="424" y="520" width="100" height="8"/>
+            <use href="#i-game-torn" x="438" y="492" width="34" height="34"/>
+            <use href="#i-game-torn" x="474" y="496" width="30" height="30"/>
+            <rect class="f-glass" x="676" y="456" width="100" height="100" rx="4"/>
+            <rect class="f-wood" x="676" y="520" width="100" height="8"/>
+            <use href="#i-shirt" x="690" y="486" width="34" height="34"/>
+            <use href="#i-game-missing" x="730" y="488" width="34" height="34"/>
+            <!-- doorway -->
+            <rect class="f-inside" x="548" y="436" width="104" height="240"/>
+            <path class="f-inside-glow" d="M548 676 V436 H652 V676 Z"/>
+            <g id="doorLeaf"><rect class="f-door" x="548" y="436" width="104" height="240" rx="4"/><circle class="f-gold" cx="568" cy="560" r="5"/></g>
+            <rect class="f-step" x="534" y="672" width="132" height="10" rx="3"/>
+          </g>
+
+          <!-- the centre's truck: parked until the box is loaded, then it drives to the centre.
+               Local origin is the ground under the truck's middle; the cab faces left. -->
+          <g id="truck">
+            <ellipse class="f-shadow" cx="0" cy="3" rx="186" ry="8"/>
+            <rect class="f-van-d" x="-62" y="-66" width="227" height="16" rx="3"/>
+            <rect class="f-van" x="-62" y="-108" width="10" height="42"/>
+            <rect class="f-van" x="156" y="-84" width="9" height="18"/>
+            <g id="truckBox" opacity="0">
+              <rect class="f-kraft" x="-2" y="-130" width="84" height="64" rx="3"/>
+              <rect class="f-kraft-d" x="40" y="-130" width="42" height="64" rx="3"/>
+              <rect class="f-tape" x="33" y="-130" width="14" height="22"/>
+              <text class="box-text" x="40" y="-82">תרומה</text>
+            </g>
+            <path class="f-van" d="M-165 -50 V-92 Q-165 -104 -154 -108 L-122 -132 Q-118 -136 -112 -136 H-62 V-50Z"/>
+            <path class="f-van-d" d="M-165 -50 H-62 V-60 H-165Z"/>
+            <path class="f-glass" d="M-148 -104 L-124 -124 H-72 V-100Z"/>
+            <circle class="f-cream" cx="-107" cy="-82" r="19"/>
+            <use href="#i-logo" x="-122" y="-97" width="30" height="30"/>
+            <circle class="f-gold" cx="-160" cy="-80" r="5"/>
+            <rect class="f-tire" x="-172" y="-62" width="10" height="12" rx="3"/>
+            <circle class="f-van-d" cx="-110" cy="-26" r="31"/>
+            <circle class="f-van-d" cx="95" cy="-26" r="31"/>
+            <g id="truckWheelA"><circle class="f-tire" r="26"/><circle class="f-rim" r="16"/><path class="f-spoke" d="M-16 0 H16 M0 -16 V16"/><circle class="f-marker" cy="-21" r="3.5"/></g>
+            <g id="truckWheelB"><circle class="f-tire" r="26"/><circle class="f-rim" r="16"/><path class="f-spoke" d="M-16 0 H16 M0 -16 V16"/><circle class="f-marker" cy="-21" r="3.5"/></g>
+          </g>
+        </g>
+
+        <!-- the family, built from the same parts so they read as one set -->
+        <g id="actors">
+          <g id="kid"></g>
+          <g id="boxCarried">
+            <rect class="f-kraft" x="958" y="574" width="84" height="64" rx="3"/>
+            <rect class="f-kraft-d" x="1000" y="574" width="42" height="64" rx="3"/>
+            <rect class="f-tape" x="993" y="574" width="14" height="22"/>
+            <text class="box-text" x="1000" y="622">תרומה</text>
+          </g>
+          <g id="mom"></g>
+        </g>
+
+        <g id="layerFront"></g>
+      </svg>
+
+      <!-- text laid over the painting -->
+      <div class="hero-copy container" id="heroCopy">
+        <div class="hero-title">
+          <p class="eyebrow">יחידת למידה למשמרת הראשונה · כ-10 דקות</p>
+          <h1>ממיינים תרומות<br>לפני המסירה</h1>
+        </div>
+      </div>
+
+      <div class="captions container" id="captions" aria-live="polite">
+        <p class="cap" data-cap="0"><span class="cap-no">פרק 1 מתוך 4</span>הקופסה יוצאת מהבית: בגדים ומשחקים שכבר לא בשימוש.</p>
+        <p class="cap" data-cap="1"><span class="cap-no">פרק 2 מתוך 4</span>בדרך למרכז הקבלה של סיבוב נוסף.</p>
+        <p class="cap" data-cap="2"><span class="cap-no">פרק 3 מתוך 4</span>מוסרים את הקופסה למשאית של המרכז.</p>
+        <p class="cap" data-cap="3"><span class="cap-no">פרק 4 מתוך 4</span>המשאית נוסעת למרכז, ומשם הקופסה עוברת לשולחן המיון.</p>
+      </div>
+
+      <div class="meter" id="meter" aria-hidden="true"><span class="meter-fill"></span></div>
+      <p class="hint" id="hint" aria-hidden="true">גללו למטה</p>
+    </div>
+  </div>
+  <!-- Shown instead of the scroll scene when motion is reduced -->
+  <ol class="journey-list container" id="journeyList" hidden>
+    <li>הקופסה יוצאת מהבית: בגדים ומשחקים שכבר לא בשימוש.</li>
+    <li>בדרך למרכז הקבלה של סיבוב נוסף.</li>
+    <li>מוסרים את הקופסה למשאית של המרכז.</li>
+    <li>המשאית נוסעת למרכז, ומשם הקופסה עוברת לשולחן המיון.</li>
+  </ol>
+</header>
+
+<main id="main">
+
+  <!-- ===== Unboxing scene: the box is opened on the sorting table ===== -->
+  <section class="unbox" id="unbox" aria-labelledby="unboxTitle">
+    <div class="pin" id="unboxPin">
+      <div class="stage" id="unboxStage">
+        <svg class="world" id="table" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMax slice" role="img" aria-labelledby="tableTitle tableDesc">
+          <title id="tableTitle">שולחן המיון</title>
+          <desc id="tableDesc">הקופסה נפתחת על השולחן, וממנה יוצאים חולצה, משחק קופסה ומעיל ונוחתים על השולחן עם תוויות.</desc>
+          <rect class="f-room" x="-2000" y="-2400" width="5000" height="3200"/>
+          <rect class="f-room-d" x="-2000" y="470" width="5000" height="200"/>
+          <!-- window with a light shaft -->
+          <rect class="f-frame" x="90" y="60" width="210" height="200" rx="6"/>
+          <rect class="f-sky-in" x="102" y="72" width="186" height="176" rx="3"/>
+          <path class="f-bar" d="M194 72 V248 M102 160 H288"/>
+          <path class="f-shaft" d="M102 248 L288 248 L560 560 L260 560Z"/>
+          <!-- pendant lamp -->
+          <path class="f-bar" d="M600 -2400 V30"/>
+          <path class="f-lamp" d="M560 74 Q600 20 640 74Z"/>
+          <ellipse class="f-bulb" cx="600" cy="80" rx="18" ry="8"/>
+          <!-- table -->
+          <rect class="f-wood" x="-400" y="450" width="1800" height="26"/>
+          <rect class="f-wood-d" x="-400" y="476" width="1800" height="56"/>
+          <rect class="f-wood-d" x="90" y="532" width="26" height="200"/><rect class="f-wood-d" x="884" y="532" width="26" height="200"/>
+
+          <!-- box: inside, items, front, flaps (in that order so items rise out from behind the front) -->
+          <rect class="f-inside" x="408" y="336" width="184" height="16"/>
+          <g id="tItems">
+            <g id="tShirt"><use href="#i-shirt" x="-80" y="-80" width="160" height="160"/></g>
+            <g id="tGame"><use href="#i-game-torn" x="-70" y="-70" width="140" height="140"/></g>
+            <g id="tCoat"><use href="#i-coat" x="-90" y="-90" width="180" height="180"/></g>
+          </g>
+          <rect class="f-kraft" x="408" y="342" width="184" height="108" rx="3"/>
+          <rect class="f-kraft-d" x="500" y="342" width="92" height="108" rx="3"/>
+          <rect class="f-tape" x="488" y="342" width="24" height="40"/>
+          <text class="box-text" x="500" y="424">תרומה</text>
+          <rect class="f-kraft-l" id="flapL" x="408" y="336" width="92" height="8" rx="2"/>
+          <rect class="f-kraft-l" id="flapR" x="500" y="336" width="92" height="8" rx="2"/>
+
+          <g id="tags" opacity="0">
+            <g class="tag"><rect class="f-paper" x="-47" y="0" width="94" height="34" rx="17"/><circle class="tag-dot" cx="30" cy="17" r="3"/><text class="tag-text" x="-5" y="22">חולצה</text></g>
+            <g class="tag"><rect class="f-paper" x="-47" y="0" width="94" height="34" rx="17"/><circle class="tag-dot" cx="30" cy="17" r="3"/><text class="tag-text" x="-5" y="22">משחק</text></g>
+            <g class="tag"><rect class="f-paper" x="-47" y="0" width="94" height="34" rx="17"/><circle class="tag-dot" cx="30" cy="17" r="3"/><text class="tag-text" x="-5" y="22">מעיל</text></g>
+          </g>
+        </svg>
+        <div class="captions captions-static container">
+          <h2 id="unboxTitle">שולחן המיון</h2>
+          <p class="cap-line" id="unboxLine">הקופסה נפתחת. כל פריט נבדק לבד.</p>
+        </div>
+        <div class="meter" aria-hidden="true"><span class="meter-fill"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Content 1: how to look at an item (scrollytelling) ===== -->
+  <section class="section inspect" id="inspect" aria-labelledby="inspectTitle">
+    <div class="container">
+      <p class="eyebrow">שלושה מבטים על כל פריט</p>
+      <h2 id="inspectTitle">איך מסתכלים על פריט</h2>
+      <p class="section-intro">אותו סדר בדיקה לכל פריט, גם בגדים וגם משחקים. נראה איך בודקים מעיל, חולצה ומשחק קופסה.</p>
+
+      <div class="row g-4 g-lg-5 inspect-example">
+        <div class="col-lg-6 inspect-figure-col">
+          <figure class="inspect-figure" id="inspectFigure" data-step="0">
+            <svg viewBox="0 0 400 420" role="img" aria-labelledby="coatTitle">
+              <title id="coatTitle">מעיל חורף עם כפתור חסר, בשלבי הבדיקה</title>
+              <path class="f-hanger" d="M200 14 Q214 14 214 28 Q214 38 200 42 L116 74 H284 L200 42"/>
+              <g transform="translate(40 40) scale(3.2)">
+                <use href="#i-coat-body" width="100" height="100"/>
+                <use href="#i-button" x="49.8" y="34.8" width="6.4" height="6.4"/>
+                <use href="#i-button" x="49.8" y="46.8" width="6.4" height="6.4"/>
+                <circle class="s-ghost" cx="53" cy="62" r="3.4"/>
+                <use class="new-btn" href="#i-button" x="49.8" y="58.8" width="6.4" height="6.4"/>
+                <use href="#i-button" x="49.8" y="70.8" width="6.4" height="6.4"/>
+              </g>
+              <g class="fx fx-1"><circle class="lens" cx="213" cy="238" r="36"/><line class="lens-handle" x1="238" y1="264" x2="270" y2="298"/></g>
+              <g class="fx fx-2"><path class="thread" d="M218 236 C250 206 282 218 298 184"/><line class="needle" x1="294" y1="190" x2="320" y2="152"/></g>
+              <g class="fx fx-3"><g transform="rotate(-7 200 340)"><rect class="stamp" x="70" y="308" width="260" height="62" rx="8"/><text class="stamp-text" x="200" y="350">דורש ניקוי או תיקון</text></g></g>
+            </svg>
+          </figure>
+        </div>
+
+        <div class="col-lg-6">
+          <ol class="inspect-steps">
+            <li class="inspect-step" data-step="1">
+              <h3><span class="step-num">1</span>מצב ושלמות</h3>
+              <p>מתחילים במבט מלא: האם הפריט נקי, יבש ובלי ריח? האם כל החלקים במקום? המעיל הזה נקי, אבל חסר בו כפתור אחד מתוך ארבעה.</p>
+              <ul class="checks">
+                <li class="check-yes">נקי, בלי כתמים וריח</li>
+                <li class="check-no">חסר כפתור אחד</li>
+              </ul>
+            </li>
+            <li class="inspect-step" data-step="2">
+              <h3><span class="step-num">2</span>אפשר להכין אותו למסירה?</h3>
+              <p>פגם קטן לא פוסל פריט. אם אפשר לנקות או לתקן אותו בתחנה תוך כ-10 דקות, עם מה שיש בערכת התפירה ובחומרי הניקוי של המרכז, הפריט נשאר אצלנו. כפתור חסר הוא בדיוק תיקון כזה.</p>
+            </li>
+            <li class="inspect-step" data-step="3">
+              <h3><span class="step-num">3</span>מחליטים לפי כללי המרכז</h3>
+              <p>המעיל עובר לסל "דורש ניקוי או תיקון". אחרי התפירה הוא עובר בדיקה קצרה נוספת ויוצא למסירה. אם לא היה כפתור מתאים בערכה, היינו מעבירים אותו לרכז המשמרת.</p>
+            </li>
+          </ol>
+        </div>
+      </div>
+      <div class="row g-4 g-lg-5 inspect-example inspect-example-extra" id="inspect-shirt">
+        <div class="col-lg-6 inspect-figure-col">
+          <figure class="inspect-figure" data-step="0">
+            <svg viewBox="0 0 400 380" role="img" aria-labelledby="shirtDemoTitle">
+              <title id="shirtDemoTitle">זכוכית מגדלת סורקת את התפרים של חולצה נקייה</title>
+              <path class="f-hanger" d="M200 12 Q217 12 217 26 Q217 38 200 44 L102 80 H298 L200 44"/>
+              <use href="#i-shirt" x="30" y="42" width="340" height="340"/>
+              <path class="demo-stitch" d="M136 323 H264 M98 189 L132 162 M268 162 L302 189"/>
+              <g class="demo-loupe shirt-loupe">
+                <circle class="lens" cx="220" cy="316" r="36"/>
+                <path class="demo-stitch" d="M193 316 H247"/>
+                <line class="lens-handle" x1="246" y1="341" x2="274" y2="369"/>
+              </g>
+              <g class="fx fx-3" transform="rotate(-7 200 290)">
+                <rect class="stamp stamp-ok" x="91" y="263" width="218" height="55" rx="8"/>
+                <text class="stamp-text stamp-ok-text" x="200" y="299">מתאים למסירה</text>
+              </g>
+            </svg>
+          </figure>
+        </div>
+        <div class="col-lg-6">
+          <ol class="inspect-steps">
+            <li class="inspect-step" data-step="1">
+              <h3>חולצת טריקו · בודקים את התפרים</h3>
+              <p>מעבירים מבט מהשרוול לשוליים. החולצה נקייה ויבשה, והתפרים סגורים לכל האורך.</p>
+              <ul class="checks"><li class="check-yes">אין כתמים או תפרים פרומים</li></ul>
+            </li>
+            <li class="inspect-step" data-step="3">
+              <h3>החולצה מוכנה למסירה</h3>
+              <p>מקפלים אותה ומעבירים למדף. היא שלמה ונקייה ואין צורך בטיפול בתחנה.</p>
+            </li>
+          </ol>
+        </div>
+      </div>
+      <div class="row g-4 g-lg-5 inspect-example inspect-example-extra" id="inspect-game">
+        <div class="col-lg-6 inspect-figure-col">
+          <figure class="inspect-figure" data-step="0">
+            <svg viewBox="0 0 400 380" role="img" aria-labelledby="gameDemoTitle">
+              <title id="gameDemoTitle">זכוכית מגדלת חושפת קרע באריזת המשחק וסרט הדבקה מכסה אותו</title>
+              <use href="#i-game-torn" x="16" y="-16" width="368" height="368"/>
+              <g class="demo-loupe game-loupe">
+                <circle class="lens" cx="242" cy="173" r="39"/>
+                <line class="lens-handle" x1="270" y1="202" x2="305" y2="236"/>
+              </g>
+              <path class="demo-tape" d="M199 139 L282 166 L264 217 L181 190Z"/>
+              <g class="fx fx-3" transform="rotate(-7 200 322)">
+                <rect class="stamp" x="70" y="298" width="260" height="55" rx="8"/>
+                <text class="stamp-text" x="200" y="334">דורש תיקון</text>
+              </g>
+            </svg>
+          </figure>
+        </div>
+        <div class="col-lg-6">
+          <ol class="inspect-steps">
+            <li class="inspect-step" data-step="1">
+              <h3>משחק קופסה · מחפשים מה חסר</h3>
+              <p>פותחים את הקופסה ומשווים לרשימת התכולה. כל החלקים נמצאים, אבל קרע באריזה עלול לגרום להם ליפול.</p>
+              <ul class="checks">
+                <li class="check-yes">המשחק שלם</li>
+                <li class="check-no">האריזה קרועה</li>
+              </ul>
+            </li>
+            <li class="inspect-step" data-step="3">
+              <h3>מתקנים את האריזה לפני המסירה</h3>
+              <p>מדביקים את הקרע ובודקים שהקופסה נסגרת היטב. אם היא עדיין נפתחת, מעבירים את החלקים לשקית סגורה עם תווית.</p>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Content 2: the centre's acceptance rules ===== -->
+  <section class="section rules" id="rules" aria-labelledby="rulesTitle">
+    <svg class="edge" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0 60 V26 Q90 4 190 24 T380 22 T560 14 T760 26 T940 12 T1140 24 T1300 16 T1440 22 V60Z"/></svg>
+    <div class="container">
+      <p class="eyebrow">כללי הקבלה של המרכז</p>
+      <h2 id="rulesTitle">שלוש החלטות, שני סוגי פריטים</h2>
+      <p class="section-intro">הכללים האלה תלויים ליד שולחן המיון. אין צורך לשנן אותם, רק להכיר את ההיגיון.</p>
+
+      <div class="decision-key" role="list">
+        <div class="key-item key-ok" role="listitem"><strong>מתאים למסירה</strong><span>יוצא למדף כמו שהוא</span></div>
+        <div class="key-item key-fix" role="listitem"><strong>דורש ניקוי או תיקון</strong><span>עד כ-10 דקות עבודה בתחנה</span></div>
+        <div class="key-item key-no" role="listitem"><strong>אינו מתאים לקבלה</strong><span>מחזירים לתורם או למחזור</span></div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <article class="rule-sheet">
+            <header class="rule-head">
+              <svg class="rule-icon" aria-hidden="true"><use href="#i-shirt"/></svg>
+              <h3>בגדים</h3>
+            </header>
+            <dl class="rule-list">
+              <dt class="tag-pill tag-ok">מתאים למסירה</dt>
+              <dd>נקי ויבש, בלי כתמים וריח. התפרים שלמים, והכפתורים והרוכסן עובדים.</dd>
+              <dt class="tag-pill tag-fix">דורש ניקוי או תיקון</dt>
+              <dd>כתם שיורד בכביסה, כפתור חסר אחד, תפר שנפרם עד 5 ס"מ.</dd>
+              <dt class="tag-pill tag-no">אינו מתאים לקבלה</dt>
+              <dd>קרע גדול, עובש, כתם קבוע, רוכסן שבור או בד שחוק עד שקיפות.</dd>
+            </dl>
+          </article>
+        </div>
+        <div class="col-lg-6">
+          <article class="rule-sheet">
+            <header class="rule-head">
+              <svg class="rule-icon" aria-hidden="true"><use href="#i-game-torn"/></svg>
+              <h3>משחקי קופסה</h3>
+            </header>
+            <dl class="rule-list">
+              <dt class="tag-pill tag-ok">מתאים למסירה</dt>
+              <dd>כל החלקים לפי רשימת התכולה, יש הוראות, והקופסה סגורה ושלמה.</dd>
+              <dt class="tag-pill tag-fix">דורש ניקוי או תיקון</dt>
+              <dd>קופסה קרועה (מדביקים, או מעבירים לשקית רוכסן עם תווית), חלקים מאובקים, הוראות חסרות שאפשר להדפיס.</dd>
+              <dt class="tag-pill tag-no">אינו מתאים לקבלה</dt>
+              <dd>חסרים חלקים חיוניים (לוח, קוביות, קלפים שבלעדיהם אי אפשר לשחק), חלקים שבורים או רטובים.</dd>
+            </dl>
+          </article>
+        </div>
+      </div>
+
+      <aside class="unknown-note" aria-labelledby="unknownTitle">
+        <h3 id="unknownTitle">חסר מידע? לא מנחשים</h3>
+        <p>לפעמים אי אפשר לראות את מצב הפריט: קופסה סגורה בסלוטייפ, שקית בגדים מקופלת. במקרה כזה שואלים שאלה שמשלימה את החסר, ורק אז מחליטים. אם התורם כבר הלך, מסמנים "ממתין לבדיקה" ומעבירים לרכז המשמרת.</p>
+        <ul class="ask-list">
+          <li>"אפשר לפתוח את הקופסה ולבדוק לפני שאני מחליט?"</li>
+          <li>"הבגדים כובסו מאז שנלבשו בפעם האחרונה?"</li>
+          <li>"שיחקתם בו לאחרונה? כל החלקים היו בפנים?"</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ===== Interactive: sorting station ===== -->
+  <section class="section station" id="station" aria-labelledby="stationTitle">
+    <div class="container">
+      <p class="eyebrow">תחנת תרגול</p>
+      <h2 id="stationTitle">הפריט הבא על המסוע</h2>
+      <p class="section-intro">סובבו את הפריט ובחרו לאיזה ארגז הוא עובר. כל מיון נכון פותח את העמדה הבאה במסוע.</p>
+
+      <div class="bins" id="bins">
+        <div class="bin bin-ok" data-bin="give">
+          <svg class="bin-icon" aria-hidden="true"><use href="#i-crate"/></svg>
+          <span class="bin-name">מתאים למסירה</span>
+          <span class="bin-count"><span class="n">0</span><span class="visually-hidden"> פריטים</span></span>
+        </div>
+        <div class="bin bin-fix" data-bin="fix">
+          <svg class="bin-icon" aria-hidden="true"><use href="#i-crate"/></svg>
+          <span class="bin-name">ניקוי או תיקון</span>
+          <span class="bin-count"><span class="n">0</span><span class="visually-hidden"> פריטים</span></span>
+        </div>
+        <div class="bin bin-no" data-bin="reject">
+          <svg class="bin-icon" aria-hidden="true"><use href="#i-crate"/></svg>
+          <span class="bin-name">אינו מתאים</span>
+          <span class="bin-count"><span class="n">0</span><span class="visually-hidden"> פריטים</span></span>
+        </div>
+      </div>
+
+      <div id="sortingRunway" class="sorting-line">
+        <div class="inspection-item">
+          <article class="item-card" data-answer="give"
+            data-ok="נכון. נקייה, שלמה ובלי פגמים: יוצאת למדף כמו שהיא."
+            data-hint="בדקו שוב: האם יש בחולצה משהו שצריך לנקות או לתקן?">
+            <svg class="item-art" aria-hidden="true"><use href="#i-shirt"/></svg>
+            <h3>חולצת טריקו</h3>
+            <p>מידה 8. כובסה, אין כתמים או ריח, כל התפרים שלמים.</p>
+            <div class="choices" role="group" aria-label="החלטה: חולצת טריקו">
+              <button type="button" class="choice c-ok" data-choice="give">מתאים למסירה</button>
+              <button type="button" class="choice c-fix" data-choice="fix">דורש ניקוי או תיקון</button>
+              <button type="button" class="choice c-no" data-choice="reject">אינו מתאים לקבלה</button>
+            </div>
+            <p class="item-feedback" aria-live="polite"></p>
+          </article>
+        </div>
+        <div class="inspection-item" hidden>
+          <article class="item-card" data-answer="fix"
+            data-ok="נכון. כפתור אחד חסר הוא תיקון קל של כמה דקות עם ערכת התפירה."
+            data-hint="המעיל עצמו נקי ושלם. האם כפתור חסר מצדיק לוותר עליו, או שאפשר לתקן?">
+            <svg class="item-art" aria-hidden="true"><use href="#i-coat"/></svg>
+            <h3>מעיל חורף</h3>
+            <p>נקי ושלם, חסר כפתור אחד מתוך ארבעה. בערכת התפירה יש כפתור דומה.</p>
+            <div class="choices" role="group" aria-label="החלטה: מעיל חורף">
+              <button type="button" class="choice c-ok" data-choice="give">מתאים למסירה</button>
+              <button type="button" class="choice c-fix" data-choice="fix">דורש ניקוי או תיקון</button>
+              <button type="button" class="choice c-no" data-choice="reject">אינו מתאים לקבלה</button>
+            </div>
+            <p class="item-feedback" aria-live="polite"></p>
+          </article>
+        </div>
+        <div class="inspection-item" hidden>
+          <article class="item-card" data-answer="fix"
+            data-ok="נכון. המשחק עצמו שלם. מדביקים את הקופסה או מעבירים לשקית רוכסן, והוא מוכן."
+            data-hint="מה חשוב יותר במשחק: הקופסה או החלקים? ואפשר לתקן קופסה?">
+            <svg class="item-art" aria-hidden="true"><use href="#i-game-torn"/></svg>
+            <h3>משחק לוח, קופסה קרועה</h3>
+            <p>לפי רשימת התכולה כל החלקים בפנים. פינת הקופסה קרועה והמכסה לא נסגר היטב.</p>
+            <div class="choices" role="group" aria-label="החלטה: משחק לוח עם קופסה קרועה">
+              <button type="button" class="choice c-ok" data-choice="give">מתאים למסירה</button>
+              <button type="button" class="choice c-fix" data-choice="fix">דורש ניקוי או תיקון</button>
+              <button type="button" class="choice c-no" data-choice="reject">אינו מתאים לקבלה</button>
+            </div>
+            <p class="item-feedback" aria-live="polite"></p>
+          </article>
+        </div>
+        <div class="inspection-item" hidden>
+          <article class="item-card" data-answer="reject"
+            data-ok="נכון. בלי הקלפים החסרים אי אפשר לשחק, ואין דרך להשלים אותם בתחנה."
+            data-hint="אפשר לשחק במשחק זיכרון בלי שישה קלפים? ויש לנו קלפים חלופיים?">
+            <svg class="item-art" aria-hidden="true"><use href="#i-game-missing"/></svg>
+            <h3>משחק זיכרון</h3>
+            <p>חסרים 6 קלפים, כך שאי אפשר להשלים את כל הזוגות. אין קלפים חלופיים.</p>
+            <div class="choices" role="group" aria-label="החלטה: משחק זיכרון">
+              <button type="button" class="choice c-ok" data-choice="give">מתאים למסירה</button>
+              <button type="button" class="choice c-fix" data-choice="fix">דורש ניקוי או תיקון</button>
+              <button type="button" class="choice c-no" data-choice="reject">אינו מתאים לקבלה</button>
+            </div>
+            <p class="item-feedback" aria-live="polite"></p>
+          </article>
+        </div>
+      </div>
+
+      <template id="sortingTemplate">
+        <div class="sorting-workbench">
+          <div class="sorting-machine" id="sortingMachine">
+            <svg class="machine-art" viewBox="0 0 560 420" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <pattern id="machineGrid" width="32" height="32" patternUnits="userSpaceOnUse">
+                  <path d="M32 0H0V32" fill="none" stroke="#c7d3cb" stroke-width="1"/>
+                </pattern>
+                <linearGradient id="machineBelt" x2="0" y2="1">
+                  <stop stop-color="#57776d"/><stop offset="1" stop-color="#36544c"/>
+                </linearGradient>
+              </defs>
+              <rect width="560" height="420" fill="url(#machineGrid)"/>
+              <path fill="none" id="arrivalPath" d="M490 -35 V35 Q490 100 422 100 H176 C75 100 75 248 176 248 H278"/>
+              <path fill="none" id="departurePath" d="M278 248 H710"/>
+              <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <use href="#arrivalPath" class="belt-shadow"/><use href="#departurePath" class="belt-shadow"/>
+                <use href="#arrivalPath" class="belt-edge"/><use href="#departurePath" class="belt-edge"/>
+                <use href="#arrivalPath" class="belt-bed"/><use href="#departurePath" class="belt-bed"/>
+                <use href="#arrivalPath" class="belt-rollers" id="arrivalRollers"/>
+                <use href="#departurePath" class="belt-rollers" id="departureRollers"/>
+              </g>
+              <rect x="207" y="208" width="144" height="82" rx="19" fill="none" stroke="#d8a243" stroke-width="3" stroke-dasharray="6 7"/>
+              <text x="535" y="199" text-anchor="middle" class="belt-outlet-label">יציאה</text>
+              <path d="M500 25l-10 10-10-10M520 238l10 10-10 10" fill="none" stroke="#f6e2a1" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+            <div id="movingItem" class="moving-item">
+              <svg class="travel-item" viewBox="0 0 144 144" aria-hidden="true"><use/></svg>
+              <canvas id="productCanvas"></canvas>
+              <svg class="moving-crate" id="movingCrate" viewBox="0 0 100 82" aria-hidden="true">
+                <path d="M10 23 28 9H73L91 23 76 37H25Z" fill="#e6c08a"/>
+                <path d="M10 23 25 37V70L10 55Z" fill="#ad7546"/>
+                <path d="M91 23 76 37V70L91 55Z" fill="#a56e42"/>
+                <path d="M25 37H76V70H25Z" fill="#c28c55"/>
+                <path d="M44 38H59V70H44Z" fill="#e1bc84"/>
+                <path d="M29 43H41V54H29Z" fill="var(--crate-label, #467c68)"/>
+                <path class="crate-lid" d="M28 10H73L76 37H25Z" fill="#edcb95" opacity=".8"/>
+              </svg>
+            </div>
+            <span class="machine-caption" id="machineCaption">כניסה למסוע</span>
+          </div>
+          <div class="inspection-panel">
+            <p class="inspection-kicker"></p>
+            <div class="inspection-card-slot"></div>
+            <div class="inspection-controls" role="group" aria-label="סיבוב הפריט">
+              <button type="button" class="model-control" data-yaw="-45" aria-label="סיבוב שמאלה">↶</button>
+              <button type="button" class="model-control" data-yaw="45" aria-label="סיבוב ימינה">↷</button>
+              <button type="button" class="model-control" data-pitch="25" aria-label="הטיה למעלה">↑</button>
+              <button type="button" class="model-control" data-pitch="-25" aria-label="הטיה למטה">↓</button>
+              <button type="button" class="model-control model-magnify" aria-pressed="false">הגדלה</button>
+            </div>
+            <p class="inspection-hint">גללו כדי להביא את הפריט לעמדה.</p>
+            <button type="button" class="btn btn-brand next-inspection" hidden></button>
+          </div>
+        </div>
+      </template>
+
+      <div class="station-done" id="stationDone" hidden>
+        <h3>סיימתם למיין את התרומות</h3>
+        <p>פריט אחד מוכן למסירה, שניים עוברים לטיפול ואחד אינו מתאים לקבלה.</p>
+        <div class="station-actions">
+          <button type="button" class="btn btn-ghost" id="stationReset">למיין שוב</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <svg class="brand-mark" aria-hidden="true"><use href="#i-logo"/></svg>
+      <div>
+        <strong>עמותת סיבוב נוסף</strong>
+        <p>מרכז קהילתי לקבלת תרומות ולהעברת פריטים לשימוש חוזר.</p>
+      </div>
+    </div>
+    <nav aria-label="ניווט בתחתית העמוד">
+      <ul class="footer-links">
+        <li><a href="#inspect">איך מסתכלים</a></li>
+        <li><a href="#rules">כללי הקבלה</a></li>
+        <li><a href="#station">תחנת תרגול</a></li>
+      </ul>
+    </nav>
+    <p class="credits">
+      פרויקט אמצע, קורס תכנות 3. האיורים נכתבו כקוד SVG בעזרת בינה מלאכותית (Claude) ועברו עריכה של הצוות.
+      ספריות: <a href="https://getbootstrap.com/" target="_blank" rel="noopener">Bootstrap 5.3</a> (MIT).
+      גופנים: Heebo (SIL Open Font License).
+      © <span id="year">2026</span>
+    </p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/product-models.js"></script>
+<script src="assets/js/main.js?v=4"></script>
+</body>
+</html>
